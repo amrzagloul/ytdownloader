@@ -56,38 +56,44 @@ import android.widget.TextView;
 public class ShareActivity extends Activity {
 	
 	private ProgressBar progressBar1;
-    public static final String USER_AGENT_FIREFOX = "Mozilla/5.0 (Windows; U; Windows NT 6.0; en-US; rv:1.9.0.10) Gecko/2009042316 Firefox/3.0.10 (.NET CLR 3.5.30729)";
-    private static final String DEBUG_TAG = "ShareActivity";
+    public final String USER_AGENT_FIREFOX = "Mozilla/5.0 (Windows; U; Windows NT 6.0; en-US; rv:1.9.0.10) Gecko/2009042316 Firefox/3.0.10 (.NET CLR 3.5.30729)";
+    private final String DEBUG_TAG = "ShareActivity";
     private TextView tv;
     private ListView lv;
     private InputStream isFromString;
     List<String> links = new ArrayList<String>();
     List<String> codecs = new ArrayList<String>();
+    String acodec = "";
     List<String> qualities = new ArrayList<String>();
+    String aquality = "";
+    static String extrType = "";
     List<String> CQchoices = new ArrayList<String>();
     private String titleRaw;
     private String title;
     public int pos;
-    public File path;
+    public static File path;
     private String ytVideoLink;
     public String validatedLink;
     private DownloadManager downloadManager;
     private long enqueue;
 	String vfilename = "video";
+	String afilename = "audio";
 	String composedFilename = "";
+	static String composedAudioFilename = "";
     private Uri videoUri;
     private int icon;
 	public CheckBox showAgain1;
 	public CheckBox showAgain2;
 	public TextView userFilename;
-	public static SharedPreferences settings;
-	public static final String PREFS_NAME = "dentex.youtube.downloader_preferences";
+	SharedPreferences settings = SettingsActivity.settings;
+	String PREFS_NAME = SettingsActivity.PREFS_NAME;
 	public final File dir_Downloads = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
 	public final File dir_DCIM = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
 	public final File dir_Movies = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES);
 	boolean sshInfoCheckboxEnabled;
 	boolean generalInfoCheckboxEnabled;
 	boolean fileRenameEnabled;
+	static boolean audioExtractionEnabled;
 	public File chooserFolder;
 
     @Override
@@ -296,6 +302,12 @@ public class ShareActivity extends Activity {
                         	if (pathCheckOK() == true) {
                             	Log.d(DEBUG_TAG, "Destination folder is available and writable");
                         		composedFilename = composeFilename();
+                        		
+                        		audioExtractionEnabled = settings.getBoolean("enable_audio_extraction", false);
+                        		if (audioExtractionEnabled == true) {
+                        			composedAudioFilename = composeAudioFilename();
+                        		}
+                        		
 	                            fileRenameEnabled = settings.getBoolean("enable_rename", false);
 	                            if (fileRenameEnabled == true) {
 	                            	AlertDialog.Builder adb = new AlertDialog.Builder(ShareActivity.this);
@@ -311,6 +323,11 @@ public class ShareActivity extends Activity {
 		                    	    		title = userFilename.getText().toString();
 		                    	    		composedFilename = composeFilename();
 		                    	    		callDownloadManager();
+		                    	    	}
+		                    	    });
+		                    	    adb.setNegativeButton(getString(R.string.dialogs_negative), new DialogInterface.OnClickListener() {
+		                    	    	public void onClick(DialogInterface dialog, int which) {
+		                    	    		// Just Cancel
 		                    	    	}
 		                    	    });
 		                    	    adb.show();
@@ -403,6 +420,31 @@ public class ShareActivity extends Activity {
     	    if (useQualitySuffix() == false) vfilename = title + "." + codecs.get(pos);
     	    Log.d(DEBUG_TAG, "filename: " + vfilename);
     	    return vfilename;
+        }
+        
+        public String composeAudioFilename() {
+        	//CODEC [file EXTENSION]
+        	extrType = settings.getString("audio_extraction_type", "strip");
+    		if (extrType.equals("encode") == true) {
+    			acodec = ".mp3";
+    		} else {
+    			if (codecs.get(pos).equals("webm")) acodec = ".ogg";
+    			if (codecs.get(pos).equals("mp4")) acodec = ".aac";
+    			if (codecs.get(pos).equals("flv") && qualities.get(pos).equals("small")) acodec = ".mp3";
+    			if (codecs.get(pos).equals("flv") && qualities.get(pos).equals("medium")) acodec = ".aac";
+    			if (codecs.get(pos).equals("flv") && qualities.get(pos).equals("large")) acodec = ".aac";
+    			if (codecs.get(pos).equals("3gpp")) acodec = ".aac";
+    		}
+    		//QUALITY
+        	if (useQualitySuffix() ==  true && extrType.equals("encode") == true) {
+        		aquality = "_" + settings.getString("mp3_bitrate", "192");
+        	} else { 
+        		aquality = "";
+        	}
+        	//FINALLY
+        	afilename = title + aquality + acodec;
+        	Log.d(DEBUG_TAG, "afilename: " + afilename);
+    	    return afilename;
         }
 
 		void callDownloadManager() {

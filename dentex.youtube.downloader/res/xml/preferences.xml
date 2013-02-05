@@ -41,7 +41,7 @@
         	android:switchTextOn="ON"
         	android:switchTextOff="OFF"
         	android:defaultValue="false" 
-        	android:disableDependentsState="true" />
+        	android:disableDependentsState="true"/>
     	
 		<PreferenceScreen
 		    android:key="open_chooser"
@@ -66,49 +66,33 @@
     	
     </PreferenceCategory>
     
-    <PreferenceCategory 
-        android:title="@string/settings_cat_licenses">
+    <PreferenceCategory
+        android:title="@string/settings_cat_audio">
     	
-        <Preference
-            android:key="gpl"
-            android:title="@string/gpl_title"
-            android:summary="@string/gpl_summary" />
+    	<CheckBoxPreference
+        	android:key="enable_audio_extraction"
+        	android:title="@string/enable_audio_extraction_title"
+        	android:summary="@string/enable_audio_extraction_summary"
+        	android:defaultValue="false" />
         
-        <Preference
-            android:key="mit"
-            android:title="@string/mit_title"
-            android:summary="@string/mit_summary" />
-    
-    </PreferenceCategory>
-    
-    <PreferenceCategory 
-        android:title="@string/settings_cat_code">
+        <ListPreference
+            android:dependency="enable_audio_extraction"
+            android:key="audio_extraction_type"
+            android:title="@string/audio_extraction_type_title"
+            android:dialogTitle="@string/audio_extraction_type_title"
+            android:entries="@array/audio_extraction_type_entries"
+            android:entryValues="@array/audio_extraction_type_entry_values"
+            android:defaultValue="@string/audio_extraction_type_default" />
         
-        <Preference 
-            android:key="ytd_code_git"
-            android:title="@string/ytd_code_git_title"
-            android:summary="@string/ytd_code_git_summary" />
-        
-        <Preference 
-            android:key="ytd_code_hg"
-            android:title="@string/ytd_code_hg_title"
-            android:summary="@string/ytd_code_hg_summary" />
-                
-        <Preference 
-            android:key="chooser_code"
-            android:title="@string/chooser_code_title"
-            android:summary="@string/chooser_code_summary" />
-        
-    </PreferenceCategory>
-    
-    <PreferenceCategory 
-        android:title="@string/settings_cat_social">
-        
-        <Preference
-            android:key="share"
-            android:title="@string/share_title"
-            android:summary="@string/share_summary" />
-        
-    </PreferenceCategory>
-
+        <ListPreference
+            android:dependency="enable_audio_extraction"
+            android:key="mp3_bitrate"
+            android:title="@string/mp3_bitrate_title"
+            android:dialogTitle="@string/mp3_bitrate_title"
+            android:entries="@array/mp3_bitrate_entries"
+            android:entryValues="@array/mp3_bitrate_entry_values"
+            android:defaultValue="@string/mp3_bitrate_default" />
+            
+	</PreferenceCategory>
+	
 </PreferenceScreen>

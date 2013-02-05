@@ -3,12 +3,10 @@ ytdownloader
 
 YouTube Downloader - Android App to download videos from YouTube
 
-['for Android 3+]
-
 ################################################################
 
-versionCode="32"
-versionName="1.4"
+versionCode="X"
+versionName="WIP"
 
 Copyright (C) 2012  Samuele Rini
 
